@@ -6,7 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Todo])],
-  controllers: [TodoController],
+  controllers: [TodoController], 
   providers: [TodoService]
 })
 export class TodoModule {}

@@ -10,7 +10,4 @@ export class Todo{
 
     @Column({default:false})
     isCompleted :boolean
-
-    @Column()
-    date :string
 }
