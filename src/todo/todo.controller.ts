@@ -1,27 +1,35 @@
-import { Controller, Get, Post, Body, Put, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Patch } from '@nestjs/common';
 import { TodoService } from './todo.service';
-
+import { Todo } from './todo.entity';
 
 @Controller('todo')
 export class TodoController {
-    constructor(private readonly todoService:TodoService){}
-    @Get()
-    findAll(){
-        return this.todoService.findAll();
-    }
+  constructor(private readonly todoService: TodoService) {}
 
-    @Post()
-    create(@Body('task') task:string){
-        return this.todoService.create(task)
-    }
+  @Get()
+  async getAllTodos() {
+    const todos = await this.todoService.findAll();
+    return {
+      title: 'ToDoリスト',
+      tasks: todos,
+    };
+  }
 
-    @Put(':id')
-    update(@Param('id') id:number ,@Body('isCompleted') isCompleted:boolean){
-        return this.todoService.update(id,isCompleted)
-    }
+  @Post()
+  async createTodo(@Body('task') task: string) {
+    return this.todoService.create(task);
+  }
 
-    @Delete(':id')
-    delete(@Param('id') id:number){
-        return this.todoService.delete(id)
-    }
+  @Patch(':id')
+  async updateTodo(
+    @Param('id') id: number,
+    @Body('completed') completed: boolean,
+  ) {
+    await this.todoService.update(id, completed);
+  }
+
+  @Delete(':id')
+  async deleteTodo(@Param('id') id: number) {
+    await this.todoService.remove(id);
+  }
 }
