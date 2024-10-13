@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+</head>
+<body>
+    <h1>{{ title }}</h1>
+    
+    <!-- タスク追加フォーム -->
+    <form action="/todo" method="POST">
+        <input type="text" name="task" placeholder="新しいタスクを入力" required>
+        <button type="submit">追加</button>
+    </form>
+
+    <ul>
+        {% for task in tasks %}
+            <li>
+                {% if task.completed %}
+                    <s>{{ task.task }}</s>
+                {% else %}
+                    {{ task.task }}
+                {% endif %}
+                <!-- 完了ボタン -->
+                <form action="/todo/{{ task.id }}" method="PATCH" style="display:inline;">
+                    <button type="submit">完了</button>
+                </form>
+                <!-- 削除ボタン -->
+                <form action="/todo/{{ task.id }}" method="DELETE" style="display:inline;">
+                    <button type="submit">削除</button>
+                </form>
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
