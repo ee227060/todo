@@ -1,15 +1,14 @@
-import { Controller, Get, Post, Body, Param, Delete, Patch } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Patch, Res, Render } from '@nestjs/common';
 import { TodoService } from './todo.service';
-import { Todo } from './todo.entity';
 
 @Controller('todo')
 export class TodoController {
   constructor(private readonly todoService: TodoService) {}
-
   @Get()
+  @Render('index.njk')
   async getAllTodos() {
     const todos = await this.todoService.findAll();
-    return {
+     return {
       title: 'ToDoリスト',
       tasks: todos,
     };
@@ -22,11 +21,17 @@ export class TodoController {
 
   @Patch(':id')
   async updateTodo(
-    @Param('id') id: number,
-    @Body('completed') completed: boolean,
+      @Param('id') id: number,
+      @Body('completed') completed?: boolean,
+      @Body('task') task?: string
   ) {
-    await this.todoService.update(id, completed);
+      if (task !== undefined) {
+          await this.todoService.update(id, { task });
+      } else if (completed !== undefined) {
+          await this.todoService.update(id, { isCompleted: completed });
+      }
   }
+  
 
   @Delete(':id')
   async deleteTodo(@Param('id') id: number) {

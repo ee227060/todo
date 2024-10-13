@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+</head>
+<body>
+    <h1>{{ title }}</h1>
+
+    <!-- タスク追加フォーム -->
+    <form id="todoForm">
+        <input type="text" name="task" placeholder="新しいタスクを入力" required>
+        <button type="submit">追加</button>
+    </form>
+
+    <h2>未完了のタスク</h2>
+    <ul id="incompleteTasks">
+        {% for task in tasks %}
+            {% if not task.isCompleted %}
+                <li>
+                    <span id="taskText-{{ task.id }}">{{ task.task }}</span>
+                    <button onclick="editTask({{ task.id }})">編集</button>
+                    <button onclick="completeTask({{ task.id }})">完了</button>
+                    <button onclick="deleteTask({{ task.id }})">削除</button>
+                </li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+
+    <h2>完了したタスク</h2>
+    <ul id="completedTasks">
+        {% for task in tasks %}
+            {% if task.isCompleted %}
+                <li>
+                    <s>{{ task.task }}</s>
+                    <button onclick="deleteTask({{ task.id }})">削除</button>
+                </li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+
+    <!-- 編集用フォーム -->
+    <div id="editForm" style="display:none;">
+        <input type="text" id="editTaskInput" required>
+        <button id="updateButton">更新</button>
+        <button onclick="cancelEdit()">キャンセル</button>
+    </div>
+
+    <script>
+    document.getElementById('todoForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const formData = new FormData(this);
+        const task = formData.get('task');
+
+        fetch('/todo', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ task })
+        })
+        .then(response => {
+            if (response.ok) {
+                location.reload();
+            }
+        });
+    });
+
+    function completeTask(id) {
+        fetch(`/todo/${id}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ completed: true })
+        })
+        .then(response => {
+            if (response.ok) {
+                location.reload();
+            }
+        });
+    }
+
+    function deleteTask(id) {
+        fetch(`/todo/${id}`, {
+            method: 'DELETE'
+        })
+        .then(response => {
+            if (response.ok) {
+                location.reload();
+            }
+        });
+    }
+
+    // 編集機能
+    function editTask(id) {
+        const taskText = document.getElementById(`taskText-${id}`).innerText;
+        document.getElementById('editTaskInput').value = taskText;
+        document.getElementById('editForm').style.display = 'block';
+        document.getElementById('updateButton').onclick = function() {
+            updateTask(id);
+        };
+    }
+
+    function updateTask(id) {
+        const updatedTask = document.getElementById('editTaskInput').value;
+
+        fetch(`/todo/${id}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ task: updatedTask })
+        })
+        .then(response => {
+            if (response.ok) {
+                location.reload();
+            }
+        });
+    }
+
+    function cancelEdit() {
+        document.getElementById('editForm').style.display = 'none';
+    }
+    </script>
+</body>
+</html>
