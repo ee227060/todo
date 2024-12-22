@@ -1,14 +1,21 @@
-import { Controller, Get, Render } from '@nestjs/common';
-import { AppService } from './app.service';
-import { title } from 'process';
+import { Controller, Get, Render ,Redirect} from '@nestjs/common';
 import { TodoService } from './todo/todo.service';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(private readonly TodoService: TodoService) {}
 
   @Get()
-  getHello(){
-    return this.appService.getHello();
+  @Redirect('index')
+  getRoot() {}
+
+  // homeページ
+  @Get('/index')
+  @Render('index')
+  async getIndex() {
+    const tasks = await this.TodoService.findAll();
+    return {
+      task: tasks,
+    };
   }
 }
